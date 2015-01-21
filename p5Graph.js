@@ -127,13 +127,13 @@ function p5Descriptor(){
 
 	// update display values
 	this.updateDisplayValues = function(){
-		//this is the definition of the function
+		this.box.html(this.title + '' +  this.value);
 	}
 	
 	// display function
 	this.display = function(x,y){
 		this.updateDisplayValues();
-		this.setPosition(x,y);
+		this.setPosition(x,y - this.box.elt.offsetHeight);
 		this.box.show();
 	}
 
@@ -145,6 +145,7 @@ function p5Descriptor(){
 
 function p5Axis(){
 	// position values
-	this.pos = createVector(0,0);
-	
+	this.display = function(){
+		line(10,80);
+	}
 }
