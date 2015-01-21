@@ -1,4 +1,57 @@
+function p5Graph(x1,x2,y1,y2){
 
+	createCanvas(400,400);
+	this.strokeColor = createVector(255);
+	this.fillColor = createVector(171,14,23);
+	this.bars = [];
+	this.axisOffsetX = 30;
+	this.axisOffsetY = height - 10;
+ 
+	this.xAxis = new p5Axis(this.axisOffsetX, this.axisOffsetY, x1, x2, 'x');
+	this.yAxis = new p5Axis(this.axisOffsetX, this.axisOffsetY, y1, y2, 'y');
+
+	this.add = function(value, title){
+		var bar = new p5Bar(value,title);
+		var heightValue = this.yAxis.getUnit() * value;
+
+		bar.setFill(this.fillColor.x,this.fillColor.y,this.fillColor.z);
+		bar.setStroke(this.strokeColor.x,this.strokeColor.y,this.strokeColor.z);
+		bar.setDimension(this.xAxis.getWidthOfInterval(),heightValue);
+		bar.setPosition(this.axisOffsetX + (this.xAxis.getWidthOfInterval() * (this.bars.length)),this.axisOffsetY - heightValue - 1);
+		this.bars.push(bar);
+	}
+
+	this.fillColor = function(R,G,B,N){
+		if (N !== 'undefined'){
+			this.bars[N].setFill(R,G,B);
+		}
+		else{
+			this.fillColor.x = R;
+			this.fillColor.y = G;
+			this.fillColor.z = B;
+		}
+	}
+
+	this.strokeColor = function(R,G,B,N){
+		if (N !== 'undefined'){
+			this.bars[N].setStroke(R,G,B);
+		}
+		else{
+			this.strokeColor.x = R;
+			this.strokeColor.y = G;
+			this.strokeColor.z = B;
+		}
+	}
+
+	this.display = function(){
+		this.xAxis.display();
+		this.yAxis.display();
+
+		for (var i = 0; i < this.bars.length; i++){
+			this.bars[i].display();
+		}
+	}
+}
 function p5Bar(value, title){
 	this.position = createVector(0, 0, 0);			// vector to set position of bar
 	this.dimension = createVector(20,80, 0);		// vector to set dimensions of bar
@@ -10,8 +63,8 @@ function p5Bar(value, title){
 
 	// setter function for position
 	this.setPosition = function(X,Y,Z){
-		this.position.x = typeof X !== 'undefined' ? X : width/2;	// set default if no value provided
-		this.position.y = typeof Y !== 'undefined' ? Y : height/2;	// set default if no value provided
+		this.position.x = typeof X !== 'undefined' ? X : 0;	// set default if no value provided
+		this.position.y = typeof Y !== 'undefined' ? Y : 0;	// set default if no value provided
 		this.position.z = typeof Z !== 'undefined' ? Z : 0;			// set default if no value provided
 	}
 
@@ -30,10 +83,9 @@ function p5Bar(value, title){
 	}
 
 	// setter function for dimensions
-	this.setDimension = function(W,H,D){
+	this.setDimension = function(W,H){
 		this.dimension.x = typeof W !== 'undefined' ? W : 20;		// set default if no value provided
 		this.dimension.y = typeof H !== 'undefined' ? H : 80;		// set default if no value provided
-		this.dimension.z = typeof D !== 'undefined' ? D : 0;		// set default if no value provided
 	}
 
 	// call the setters and instantiate default values
@@ -231,7 +283,7 @@ function p5Axis(x,y,a,b,type){
 
 	this.mapValues();
 
-	this.getEndPositions = function(){
+	this.setEndPositions = function(){
 		if(this.type == 'x'){
 			this.endPosition = createVector(this.position.x + this.max,this.position.y);
 		}
@@ -240,7 +292,7 @@ function p5Axis(x,y,a,b,type){
 		}
 	}
 
-	this.getEndPositions();
+	this.setEndPositions();
 
 	this.getIntervals = function(){
 
@@ -262,6 +314,13 @@ function p5Axis(x,y,a,b,type){
 	}
 	this.getIntervals();
 
+	this.getWidthOfInterval = function(){
+		return this.interval;
+	}
+
+	this.getUnit = function(){
+		return abs(this.endPosition.y - this.position.y)/this.maxVal;
+	}
 
 	this.display = function(){
 		line(this.position.x,this.position.y,this.endPosition.x, this.endPosition.y);
