@@ -4,7 +4,7 @@
 	this.pos = createVector(0,0);
 }*/
 
-function p5Bar(){
+function p5Bar(value, title){
 	this.position = createVector(0, 0, 0);			// vector to set position of bar
 	this.dimension = createVector(20,80, 0);		// vector to set dimensions of bar
 	this.barColor = createVector(0,0,0);			// vector to set r,g,b values of bar color
@@ -47,8 +47,12 @@ function p5Bar(){
 	this.setDimension();
 
 	// set the values for the descriptor
-	this.descriptor.setValue(32);
-	this.descriptor.setTitle('Title');
+	if(typeof value !== 'undefined'){
+		this.descriptor.setValue(value);
+	}
+	if(typeof title !== 'undefined'){
+		this.descriptor.setTitle(title);
+	}
 
 	this.display = function(){
 		// set the fill color
@@ -97,11 +101,7 @@ function p5Descriptor(){
 	// set default values for value and title
 	this.setValue();
 	this.setTitle();
-
-	// temporary to test this out
-	this.value = 10;
-	this.title = "heading" + '<br/>';
-
+	
 	this.box = createDiv(this.title + '' +  this.value);	// the actual div where everything is displayed
 	this.box.hide();										// hide the div by default
 
