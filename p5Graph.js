@@ -146,8 +146,21 @@ function p5Descriptor(){
 
 function p5Axis(x,y,a,b,type){
 
+
+	/* values needed
+		this.maxVal: to figure out the m
+		this.interval:
+		this.numOfIntervals:
+		this.maxAllowed:
+		this.position:
+		this.endposition
+		this.title
+
+	*/
 	/* store the position */
+
 	this.position = createVector (0,0);
+	this.title = createDiv();
 
 	/*
 		if a > b
@@ -173,36 +186,73 @@ function p5Axis(x,y,a,b,type){
 	// maximum allowed value by default
 
 	this.maxAllowed = function(value){
-		this.maxAllowed = typeof value !== 'undefined' ? value : (width - this.position.x);
+		// leave 5 px for display box to show in case of  bar overload
+		this.maxAllowed = typeof value !== 'undefined' ? value : (this.type === 'x' ? (width - this.position.x - 5) : (this.position.y - 5));
 	}
 
 	this.setPosition = function(x, y){
 		this.position.x = x;
 		this.position.y = y;
+		if(this.type == 'x'){
+			this.title.position((this.position.x + this.maxVal), y + 10);
+		}
+		else if(this.type === 'y'){
+			this.title.position(x - 20, (this.position.y - this.maxVal));
+		}
+
 	}
 
+	this.setTitle = function(title){
+		this.title.html(typeof title !== 'undefined' ? title : (this.type === 'x' ? 'X Axis' : 'Y Axis'));
+	}
+
+	this.styleTitle = function(){
+		this.title.style('font-size', 12);
+		this.title.style('text-align','center');
+		this.title.style('font-family', 'Arial, Helvetica, sans-serif');
+
+		if(this.type === 'y'){
+			this.title.style('-webkit-transform','rotate(-90deg)');
+			this.title.style('-moz-transform','rotate(-90deg)');
+			this.title.style('-ms-transform','rotate(-90deg)');
+			this.title.style('-o-transform','rotate(-90deg)');
+			this.title.style('transform','rotate(-90deg)');
+			this.title.style('filter','rotate(-90deg)'); /*Mandatory for IE9 to show the vertical text correctly*/ 
+		}
+	}
+	this.setTitle()
+	this.styleTitle();
 	this.setPosition(x,y);
 	this.maxAllowed();
 
 	this.mapValues = function(){
-		if (this.maxVal <= this.maxAllowed){
-			this.unit = this.interval;
+		if(this.type === 'x'){
+			this.maxVal = map(this.maxVal, 0, this.maxVal, this.position.x, this.maxAllowed);
+			this.interval = map(this.interval, 0, this.maxVal, this.position.x, this.maxAllowed);
 		}
-		else if ( this.maxVal > this.maxAllowed){
-			map(this.maxVal, 0, maxVal, 0, this.maxAllowed);
-			map(this.interval, 0, maxVal, 0, this.maxAllowed);
+		else if(this.type === 'y'){
+			this.maxVal = map(this.maxVal, 0, this.maxVal, this.position.y, this.maxAllowed);
+			this.interval = map(this.interval, 0, this.maxVal, this.position.y, this.maxAllowed);
 		}
+		
 	}
 
 	this.mapValues();
 
+	this.getEndPositions = function(){
+		if(this.type == 'x'){
+			this.endPosition = createVector(this.position.x + this.maxVal,this.position.y);
+		}
+		else if(this.type == 'y'){
+			this.endPosition = createVector(this.position.x,this.position.y - this.maxVal)
+		}
+	}
+
+	this.getEndPositions();
+
+
 	this.display = function(){
-		if(type == 'x'){
-			line(this.position.x,this.position.y, this.position.x + this.maxVal,this.position.y);
-		}
-		else if(type == 'y'){
-			line(this.position.x,this.position.y, this.position.x,this.position.y + this.maxVal);
-		}
+		line(this.position.x,this.position.y,this.endPosition.x, this.endPosition.y);
 	}
 	
 }
