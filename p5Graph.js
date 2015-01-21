@@ -1,9 +1,4 @@
 
-
-/*function p5Graph(){
-	this.pos = createVector(0,0);
-}*/
-
 function p5Bar(value, title){
 	this.position = createVector(0, 0, 0);			// vector to set position of bar
 	this.dimension = createVector(20,80, 0);		// vector to set dimensions of bar
@@ -146,21 +141,12 @@ function p5Descriptor(){
 
 function p5Axis(x,y,a,b,type){
 
-
-	/* values needed
-		this.maxVal: to figure out the m
-		this.interval:
-		this.numOfIntervals:
-		this.maxAllowed:
-		this.position:
-		this.endposition
-		this.title
-
-	*/
-	/* store the position */
+	// store the position
 
 	this.position = createVector (0,0);
 	this.title = createDiv();
+
+	this.intervals = []
 
 	/*
 		if a > b
@@ -173,13 +159,17 @@ function p5Axis(x,y,a,b,type){
 	*/
 	this.type = type;
 	if (a > b){
+		this.max = a;
 		this.maxVal = a;
-		this.interval = this.maxVal / b;
+		this.interval = this.max / b;
+		this.intervalVal = this.interval;
 		this.numOfIntervals = b;
 	}
 	else if( a <= b){
+		this.max = a * b;
 		this.maxVal = a * b;
 		this.interval = a;
+		this.intervalVal = this.interval;
 		this.numOfIntervals = b;
 	}	
 
@@ -194,45 +184,47 @@ function p5Axis(x,y,a,b,type){
 		this.position.x = x;
 		this.position.y = y;
 		if(this.type == 'x'){
-			this.title.position((this.position.x + this.maxVal), y + 10);
+			this.title.position((this.position.x + width/2), y + 20);
 		}
 		else if(this.type === 'y'){
-			this.title.position(x - 20, (this.position.y - this.maxVal));
+			this.title.position(x - 30, (this.position.y - height/2));
 		}
 
 	}
 
 	this.setTitle = function(title){
 		this.title.html(typeof title !== 'undefined' ? title : (this.type === 'x' ? 'X Axis' : 'Y Axis'));
+		this.title.style('z-index', 3);
 	}
 
-	this.styleTitle = function(){
-		this.title.style('font-size', 12);
-		this.title.style('text-align','center');
-		this.title.style('font-family', 'Arial, Helvetica, sans-serif');
+	this.styleTitleElements = function(element){
+		element.style('font-size', 12);
+		element.style('text-align','center');
+		element.style('font-family', 'Arial, Helvetica, sans-serif');
+
 
 		if(this.type === 'y'){
-			this.title.style('-webkit-transform','rotate(-90deg)');
-			this.title.style('-moz-transform','rotate(-90deg)');
-			this.title.style('-ms-transform','rotate(-90deg)');
-			this.title.style('-o-transform','rotate(-90deg)');
-			this.title.style('transform','rotate(-90deg)');
-			this.title.style('filter','rotate(-90deg)'); /*Mandatory for IE9 to show the vertical text correctly*/ 
+			element.style('-webkit-transform','rotate(-90deg)');
+			element.style('-moz-transform','rotate(-90deg)');
+			element.style('-ms-transform','rotate(-90deg)');
+			element.style('-o-transform','rotate(-90deg)');
+			element.style('transform','rotate(-90deg)');
+			element.style('filter','rotate(-90deg)'); /*Mandatory for IE9 to show the vertical text correctly*/ 
 		}
 	}
 	this.setTitle()
-	this.styleTitle();
+	this.styleTitleElements(this.title);
 	this.setPosition(x,y);
 	this.maxAllowed();
 
 	this.mapValues = function(){
 		if(this.type === 'x'){
-			this.maxVal = map(this.maxVal, 0, this.maxVal, this.position.x, this.maxAllowed);
-			this.interval = map(this.interval, 0, this.maxVal, this.position.x, this.maxAllowed);
+			this.max = map(this.max, 0, this.max, this.position.x, this.maxAllowed);
+			this.interval = this.max / this.numOfIntervals;
 		}
 		else if(this.type === 'y'){
-			this.maxVal = map(this.maxVal, 0, this.maxVal, this.position.y, this.maxAllowed);
-			this.interval = map(this.interval, 0, this.maxVal, this.position.y, this.maxAllowed);
+			this.max = map(this.max, 0, this.max, this.position.y, this.maxAllowed);
+			this.interval = this.max / this.numOfIntervals;
 		}
 		
 	}
@@ -241,14 +233,34 @@ function p5Axis(x,y,a,b,type){
 
 	this.getEndPositions = function(){
 		if(this.type == 'x'){
-			this.endPosition = createVector(this.position.x + this.maxVal,this.position.y);
+			this.endPosition = createVector(this.position.x + this.max,this.position.y);
 		}
 		else if(this.type == 'y'){
-			this.endPosition = createVector(this.position.x,this.position.y - this.maxVal)
+			this.endPosition = createVector(this.position.x,this.position.y - this.max)
 		}
 	}
 
 	this.getEndPositions();
+
+	this.getIntervals = function(){
+
+		var x = this.type === 'x' ? this.position.x : this.position.x - 2;
+		var y = this.type === 'x' ? this.position.y + 10 : this.position.y;
+
+		for(var i=0; i <= this.numOfIntervals; i++){
+			this.intervals.push(createDiv(i*this.intervalVal));
+
+
+			this.intervals[this.intervals.length - 1].position(x,y);
+			this.styleTitleElements(this.intervals[this.intervals.length - 1]);
+			this.intervals[this.intervals.length - 1].style('font-size', 8);
+			this.title.style('z-index', 1);
+
+			x += this.type === 'x' ? this.interval : 0;
+			y -= this.type === 'y' ? this.interval : 0;
+		}
+	}
+	this.getIntervals();
 
 
 	this.display = function(){
