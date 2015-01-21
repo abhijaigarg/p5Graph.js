@@ -9,6 +9,7 @@ function p5Bar(value, title){
 	this.dimension = createVector(20,80, 0);		// vector to set dimensions of bar
 	this.barColor = createVector(0,0,0);			// vector to set r,g,b values of bar color
 	this.strokeColor = createVector(0,0,0);			// vector to set r,g,b values of stroke color
+
 	
 	this.descriptor = new p5Descriptor();
 
@@ -101,7 +102,7 @@ function p5Descriptor(){
 	// set default values for value and title
 	this.setValue();
 	this.setTitle();
-	
+
 	this.box = createDiv(this.title + '' +  this.value);	// the actual div where everything is displayed
 	this.box.hide();										// hide the div by default
 
@@ -143,9 +144,65 @@ function p5Descriptor(){
 	}
 }
 
-function p5Axis(){
-	// position values
-	this.display = function(){
-		line(10,80);
+function p5Axis(x,y,a,b,type){
+
+	/* store the position */
+	this.position = createVector (0,0);
+
+	/*
+		if a > b
+				a: max value of the axis
+				b: number of intervals on the axis
+		if a <= b
+				a: value of each interval
+				b: number of intervals
+
+	*/
+	this.type = type;
+	if (a > b){
+		this.maxVal = a;
+		this.interval = this.maxVal / b;
+		this.numOfIntervals = b;
 	}
+	else if( a <= b){
+		this.maxVal = a * b;
+		this.interval = a;
+		this.numOfIntervals = b;
+	}	
+
+	// maximum allowed value by default
+
+	this.maxAllowed = function(value){
+		this.maxAllowed = typeof value !== 'undefined' ? value : (width - this.position.x);
+	}
+
+	this.setPosition = function(x, y){
+		this.position.x = x;
+		this.position.y = y;
+	}
+
+	this.setPosition(x,y);
+	this.maxAllowed();
+
+	this.mapValues = function(){
+		if (this.maxVal <= this.maxAllowed){
+			this.unit = this.interval;
+		}
+		else if ( this.maxVal > this.maxAllowed){
+			map(this.maxVal, 0, maxVal, 0, this.maxAllowed);
+			map(this.interval, 0, maxVal, 0, this.maxAllowed);
+		}
+	}
+
+	this.mapValues();
+
+	this.display = function(){
+		if(type == 'x'){
+			line(this.position.x,this.position.y, this.position.x + this.maxVal,this.position.y);
+		}
+		else if(type == 'y'){
+			line(this.position.x,this.position.y, this.position.x,this.position.y + this.maxVal);
+		}
+	}
+	
 }
