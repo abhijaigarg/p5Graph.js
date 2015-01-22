@@ -5,7 +5,7 @@ function setup(){
    	createCanvas(500,500);
 
    	graph = new p5Graph(100,10,100,10);
-
+   	
    	graph.add(32,'0-10');
    	graph.add(54);
    	graph.add(43);
